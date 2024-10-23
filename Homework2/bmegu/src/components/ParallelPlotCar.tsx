@@ -167,7 +167,7 @@ function initChart() {
   .attr('y', -15)
   .attr('text-anchor', 'middle')
   .style('font-size', '2rem')
-  .text('Parallel Plot of Manual and Automatic Transmission Cars');
+  .text('Factors Affecting Car Selling Price');
 
   // Add a legend
   const legendData = [

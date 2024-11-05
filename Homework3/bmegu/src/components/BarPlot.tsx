@@ -21,14 +21,18 @@ interface Margin {
   left: number;
 }
 
-export default function BarPlot() {
+interface BarPlotProps {
+  onColorSelect?: (color: string | null) => void;
+}
+
+export default function BarPlot({ onColorSelect }: BarPlotProps) {
   const [bars, setBars] = useState<CategoricalBar[]>([]);
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const barRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState<ComponentSize>({ width: 0, height: 0 });
-  const margin: Margin = { top: 70, right: 20, bottom: 60, left: 60 };
+  const margin: Margin = {top: 80, right: 25, bottom: 70, left: 90 };
 
   const onResize = useDebounceCallback((size: ComponentSize) => setSize(size), 200);
-
   useResizeObserver({ ref: barRef, onResize });
 
   useEffect(() => {
@@ -37,54 +41,36 @@ export default function BarPlot() {
         const csvData = await d3.csv('../../data/car_prices_subset.csv', (d: any) => {
           const sellingprice = d['sellingprice'] ? +d['sellingprice'] : NaN;
           if (!d['color'] || isNaN(sellingprice)) {
-            return null; 
+            return null;
           }
-          return {
-            category: d['color'], 
-            value: sellingprice 
-          } as CategoricalBar;
+          return { category: d['color'], value: sellingprice } as CategoricalBar;
         });
-        const filteredData = csvData.filter(d => d !== null);
 
-        // make sure the color has to be one of the following colors: "white","gray", "black", "red", "silver", "blue", "brown", "beige", "purple", "burgundy", "gold", "yellow", "green", "charcoal", "orange", "off-white", "turquoise", "pink", "lime"
-        const colors = ["white","gray", "black", "red", "silver", "blue", "brown", "beige", "purple", "burgundy", "gold", "yellow", "green", "charcoal", "orange", "off-white", "turquoise", "pink", "lime"];
+        const filteredData = csvData.filter(d => d !== null);
+        const colors = ["white", "gray", "black", "red", "silver", "blue", "brown", "beige", "purple", "burgundy", "gold", "yellow", "green", "charcoal", "orange", "off-white", "turquoise", "pink", "lime"];
         const filteredData2 = filteredData.filter(d => colors.includes(d.category));
 
-        // combine the colors that are similar
         const colorMap: { [key: string]: string } = {
-          "gray": "silver",
-          "charcoal": "black",
-          "off-white": "white",
-          "burgundy": "red",
-          "turquoise": "blue",
-          "lime": "green",
-          "beige": "white",
-          "gold": "yellow",
+          "gray": "silver", "charcoal": "black", "off-white": "white", "burgundy": "red",
+          "turquoise": "blue", "lime": "green", "beige": "white", "gold": "yellow",
         };
 
-        filteredData2.forEach(d => {
-          if (colorMap[d.category]) {
-            d.category = colorMap[d.category] || d.category;
-          }
-        });
-        
-        // calculate the average price for each color
+        filteredData2.forEach(d => { d.category = colorMap[d.category] || d.category; });
+
         const groupedData = d3.group(filteredData2, d => d.category);
         const averageData = Array.from(groupedData, ([category, values]) => {
           const average = d3.mean(values, d => d.value) ?? 0;
           return { category, value: average };
         });
 
-        // Sort the data in descending order of value
         averageData.sort((a, b) => d3.descending(a.value, b.value));
-        // log the color of all the bars
         setBars(averageData);
 
       } catch (error) {
         console.error('Error loading CSV:', error);
       }
     };
-    
+
     dataFromCSV();
   }, []);
 
@@ -94,7 +80,6 @@ export default function BarPlot() {
     const width = size.width - margin.left - margin.right;
     const height = size.height - margin.top - margin.bottom;
 
-    // Clear previous SVG content
     d3.select('#bar-svg').selectAll('*').remove();
 
     const svg = d3.select('#bar-svg')
@@ -106,32 +91,16 @@ export default function BarPlot() {
     const x = d3.scaleBand()
       .domain(bars.map(d => d.category))
       .range([0, width])
-      .padding(0.1);
+      .padding(0);
 
     const y = d3.scaleLinear()
       .domain([6000, 20000])
       .nice()
       .range([height, 0]);
 
-    // Define a color scale
     const colorScale = d3.scaleOrdinal()
-      .domain(bars.map(d => d.category))
-      .range([
-        "#5d0000", // Brown
-        "#000000", // Black
-        "#FFFFFF", // White
-        "#C0C0C0", // Silver
-        "#1E90FF", // Blue
-        "#8235ca", // Purple
-        "#ff0000", // Red
-        "#FFA500", // Orange
-        "#FFFF00", // Yellow
-        "#008000"  // Green
-      ]);
-
-      // set the opacity of all the bars to 0.7
-    svg.selectAll('rect')
-      .attr('opacity', 0.7);
+    .domain(["white", "silver", "black", "red", "blue", "brown", "purple", "yellow", "green", "orange"])
+    .range(["#FFFFFF", "#C0C0C0", "#000000", "#ff0000", "#1E90FF", "#5d0000", "#8235ca", "#FFFF00", "#008000", "#FFA500"]);
 
     svg.append('g')
       .selectAll('rect')
@@ -142,12 +111,21 @@ export default function BarPlot() {
       .attr('width', x.bandwidth())
       .attr('height', d => height - y(d.value))
       .attr('fill', d => colorScale(d.category) as string)
-      .attr('opacity', 0.7);
+      .attr('opacity', d => (selectedColor && d.category !== selectedColor) ? 0.2 : 0.7)
+      .on('click', (event, d) => {
+        const newSelectedColor = selectedColor === d.category ? null : d.category;
+        setSelectedColor(newSelectedColor);
+        if (onColorSelect) {
+          onColorSelect(newSelectedColor);
+        }
+      });
 
+    // add borders to the bars if selected
     svg.selectAll('rect')
-    .filter((d: CategoricalBar) => d.category === "white")
-    .attr('stroke', 'black')
-    .attr('stroke-width', 1);
+      .style('stroke', (d: CategoricalBar) => selectedColor && d.category === selectedColor ? 'black' : 'none')
+      .style('stroke-width', 1);
+
+
 
     svg.append('g')
       .attr('class', 'x-axis')
@@ -158,45 +136,49 @@ export default function BarPlot() {
       .attr('class', 'y-axis')
       .call(d3.axisLeft(y));
 
-      svg.append('text')
+    svg.append('text')
       .attr('class', 'x-axis-label')
       .attr('text-anchor', 'middle')
       .attr('x', width / 2)
-      .attr('y', height + margin.bottom - 35)
+      .attr('y', height + margin.bottom - 30)
       .text('Color');
 
     svg.append('text')
       .attr('class', 'y-axis-label')
       .attr('text-anchor', 'middle')
       .attr('transform', 'rotate(-90)')
-      .attr('x', -height / 2 )
-      .attr('y', -margin.left + 20)
-      .text('Average Selling Price');
+      .attr('x', -height / 2)
+      .attr('y', -margin.left+40)
+      .text('Average Price')
+      .style('font-size', '17');
 
-      svg.append('text')
+    svg.append('text')
       .attr('x', 0)
-      .attr('y', margin.top - 105)
+      .attr('y', margin.top - 125)
       .attr('text-anchor', 'left')
       .style('font-size', '22px')
       .text('Average Car Price by Color');
 
-    // Add subtitle to the heatmap
     svg.append('text')
       .attr('x', 0)
-      .attr('y', margin.top - 85)
+      .attr('y', margin.top - 105)
       .attr('text-anchor', 'left')
       .style('font-size', '14px')
       .style('fill', 'grey')
-      .text('Average selling price of cars by color over all years');
-
-
-
-  }, [bars, size]);
-
+      .text('Click on the bar to focus on a color');
+      
+  }, [bars, size, selectedColor]);
 
   return (
     <div ref={barRef} className='chart-container'>
       <svg id='bar-svg' width='100%' height='100%'></svg>
+      <div className="tooltip" style={{
+        position: 'absolute',
+        backgroundColor: 'white',
+        border: '1px solid #ccc',
+        padding: '5px',
+        borderRadius: '4px',
+      }}></div>
     </div>
   );
 }

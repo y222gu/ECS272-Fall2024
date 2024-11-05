@@ -5,37 +5,26 @@ import ScatterPlot from './components/ScatterPlot';
 import ParallePlot from './components/ParallelPlotCar';
 import Notes from './components/Notes';
 import StreamGraph from './components/Stream';
-import SankeyDiagram from './components/SankeyPlot';
-// import SankeyPlot from './components/Sankey';
-// import { CountProvider } from './context/CountContext';
-// import NotesWithReducer from './components/NotesWithReducer';
+import Heatmap from './components/HeatMap';
 
 function Layout() {
   return (
-    <Grid container spacing={4} direction='column' id="main-container">
-      <Grid container item xs={6} sm={6} md={6} lg={6}>
-        <Grid item xs={12}>
+    
+    <Grid container spacing={0} direction='column' id="main-container">
+      <Grid container item xs={6} spacing={0} direction='row' sx={{ height: '100%' }}>
+        <Grid item xs={4}>
           <BarPlot />
         </Grid>
-      </Grid>
-      <Grid container item xs={6} sm={6} md={6} lg={6}>
-        <Grid item xs={12}>
+        <Grid item xs={8}>
           <StreamGraph />
         </Grid>
       </Grid>
-      <Grid container item xs={6} sm={6} md={6} lg={6}>
+      <Grid container item xs={3} sm={3} md={3} lg={3}>
         <Grid item xs={12}>
-          <SankeyDiagram />
+          <Heatmap />
         </Grid>
       </Grid>
-      <Grid item xs={12}>
-        {/* <Notes msg={"This is a message sent from App.tsx as component prop"} />
-        { // Uncomment the following to see how state management works in React.
-          /*
-          <CountProvider>
-            <NotesWithReducer msg={"This is a message sent from App.tsx as component prop"} />
-          </CountProvider>*/
-        }
+      <Grid item xs={3}>
       </Grid>
     </Grid>
   );

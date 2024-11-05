@@ -25,7 +25,7 @@ export default function BarPlot() {
   const [bars, setBars] = useState<CategoricalBar[]>([]);
   const barRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState<ComponentSize>({ width: 0, height: 0 });
-  const margin: Margin = { top: 40, right: 20, bottom: 80, left: 60 };
+  const margin: Margin = { top: 70, right: 20, bottom: 60, left: 60 };
 
   const onResize = useDebounceCallback((size: ComponentSize) => setSize(size), 200);
 
@@ -78,7 +78,6 @@ export default function BarPlot() {
         // Sort the data in descending order of value
         averageData.sort((a, b) => d3.descending(a.value, b.value));
         // log the color of all the bars
-        console.log('bar color', averageData.map(d => d.category));
         setBars(averageData);
 
       } catch (error) {
@@ -110,7 +109,7 @@ export default function BarPlot() {
       .padding(0.1);
 
     const y = d3.scaleLinear()
-      .domain([6000, 21000])
+      .domain([6000, 20000])
       .nice()
       .range([height, 0]);
 
@@ -174,12 +173,24 @@ export default function BarPlot() {
       .attr('y', -margin.left + 20)
       .text('Average Selling Price');
 
+      svg.append('text')
+      .attr('x', 0)
+      .attr('y', margin.top - 105)
+      .attr('text-anchor', 'left')
+      .style('font-size', '22px')
+      .text('Average Car Price by Color');
+
+    // Add subtitle to the heatmap
     svg.append('text')
-      .attr('x', size.width / 2)
-      .attr('y', margin.top / 2 + 20)
-      .attr('text-anchor', 'middle')
-      .text('Average Selling Price by Car Color')
-      .style('font-size', '2rem');
+      .attr('x', 0)
+      .attr('y', margin.top - 85)
+      .attr('text-anchor', 'left')
+      .style('font-size', '14px')
+      .style('fill', 'grey')
+      .text('Average selling price of cars by color over all years');
+
+
+
   }, [bars, size]);
 
 

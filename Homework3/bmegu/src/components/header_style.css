@@ -1,0 +1,19 @@
+
+/* Header.css */
+.header {
+    background: linear-gradient(135deg, #426883, #124365);
+    color: white;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .header-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+  
+  .header-subtitle {
+    font-weight: 400;
+    font-size: 0.9rem;
+    color: #dbe5f1;
+  }
+  

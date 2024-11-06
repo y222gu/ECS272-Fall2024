@@ -157,7 +157,7 @@ export default function BarPlot({ onColorSelect }: BarPlotProps) {
       .attr('y', margin.top - 125)
       .attr('text-anchor', 'left')
       .style('font-size', '22px')
-      .text('Average Car Price by Color');
+      .text('Average Sold Price by Color');
 
     svg.append('text')
       .attr('x', 0)

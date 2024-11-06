@@ -180,23 +180,24 @@ const StreamGraph: React.FC = () => {
     }
     var mousemove = function (event: any, d: any) {
       let grp = d.key;
-      // make a legend in d.key color
-      svg.append('g')
-      .append('rect')
-      .attr('x', margin.left + 71)
-      .attr('y', margin.top -125)
-      .attr('width', 53)
-      .attr('height', 25)
-      .style('fill', 'white')
-      .style('stroke', 'black')
-      .style('opacity', 1)
-      .style('stroke-width', 1);
 
       svg.append('g')
       .append('rect')
-      .attr('x', margin.left + 71)
+      .attr('x', margin.left + 255.5)
       .attr('y', margin.top -125)
-      .attr('width', 53)
+      .attr('width', 81)
+      .attr('height', 25)
+      .style('fill', "white")
+      .style('stroke', 'black')
+      .style('opacity', 0.7)
+      .style('stroke-width', 1);
+
+
+      svg.append('g')
+      .append('rect')
+      .attr('x', margin.left + 255.5)
+      .attr('y', margin.top -125)
+      .attr('width', 81)
       .attr('height', 25)
       .style('fill', color(grp))
       .style('stroke', 'black')
@@ -216,8 +217,8 @@ const StreamGraph: React.FC = () => {
       });
 
       Tooltip.text(d.key +' car sold in year ' + year + ' : ' + count)
-        .attr("x", event.pageX - (svgRef.current ? svgRef.current.getBoundingClientRect().left : 0) - 60)
-        .attr("y", event.pageY - (svgRef.current ? svgRef.current.getBoundingClientRect().top : 0) - 15)
+        .attr("x", event.pageX - (svgRef.current ? svgRef.current.getBoundingClientRect().left : 0) - 300)
+        .attr("y", event.pageY - (svgRef.current ? svgRef.current.getBoundingClientRect().top : 0) - 135)
         .style("opacity", 1)
         .style("font-size", 17)
         .style("font-weight", "bold")
@@ -255,7 +256,7 @@ const StreamGraph: React.FC = () => {
       .attr('y', margin.top - 105)
       .attr('text-anchor', 'left')
       .style('font-size', '22px')
-      .text('Cars Sold by Color per Year');
+      .text('Number of Cars Sold by Year in Different Colors');
 
     svg.append('text')
       .attr('x', 0)

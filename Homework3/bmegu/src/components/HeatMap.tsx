@@ -84,10 +84,27 @@ const Heatmap: React.FC<{ selectedColor: string | null }> = ({ selectedColor }) 
     const y = d3.scaleBand().range([height, 0]).domain(variables);
     const maxCount = d3.max(data, (d) => d.value) ?? 1;
 
+    //.domain(["white", "silver", "black", "red", "blue", "brown", "purple", "yellow", "green", "orange"])
+    //.range(["#FFFFFF", "#C0C0C0", "#000000", "#ff0000", "#1E90FF", "#5d0000", "#8235ca", "#FFFF00", "#008000", "#FFA500"]);
+
+    const colorMap = { 
+    "white": "#FFFFFF", 
+    "silver": "#C0C0C0", 
+    "black": "#000000", 
+    "red": "#ff0000", 
+    "blue": "#1E90FF", 
+    "brown": "#5d0000", 
+    "purple": "#8235ca", 
+    "yellow": "#FFFF00", 
+    "green": "#008000", 
+    "orange": "#FFA500" };
+
+    const mappeSselectedColor = selectedColor ? colorMap[selectedColor as keyof typeof colorMap] : "white";
+
     // Define color scale based on maxCount
     const colorScale = selectedColor
-      ? d3.scaleSequential(d3.interpolateRgb("white", ["white", "black", "silver"].includes(selectedColor) ? "black" : selectedColor)).domain([0, maxCount])
-      : d3.scaleSequential(d3.interpolateCividis).domain([0, maxCount/5]);
+      ? d3.scaleSequential(d3.interpolateRgb("white", ["#FFFFFF", "#000000", "#C0C0C0"].includes(mappeSselectedColor) ? "black" : mappeSselectedColor)).domain([0, maxCount])
+      : d3.scaleSequential(d3.interpolateBlues).domain([0, maxCount/5]);
 
     // Tooltip setup
     const tooltip = d3.select('#heatmap')
@@ -160,7 +177,7 @@ const Heatmap: React.FC<{ selectedColor: string | null }> = ({ selectedColor }) 
       .attr('y', -50)
       .attr('text-anchor', 'left')
       .style('font-size', '22px')
-      .text(`Car Body Type by Make Heatmap For ${selectedColor ?? "All"} Cars`);
+      .text(`Body Type by Brand For Cars Sold in ${selectedColor ?? "All Colors"}`);
 
     svg.append('text')
       .attr('x', 0)
@@ -168,7 +185,7 @@ const Heatmap: React.FC<{ selectedColor: string | null }> = ({ selectedColor }) 
       .attr('text-anchor', 'left')
       .style('font-size', '14px')
       .style('fill', 'grey')
-      .text('Mouse over the squares to see the count');
+      .text('Mouse over the squares to see the counts');
   }, [data, size]);
 
   return (
